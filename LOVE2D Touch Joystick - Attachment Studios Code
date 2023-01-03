@@ -1,0 +1,66 @@
+--main.lua
+function love.load()
+    -- joystick code set
+    joystick = {}
+
+    -- paddle
+    joystick.paddle = {}
+    joystick.paddle.radius = 50
+    joystick.paddle.position = {}
+    joystick.paddle.position.x = 125
+    joystick.paddle.position.y = love.graphics.getHeight()-125
+
+    function joystick.paddle.draw()
+        local colorTable = { love.graphics.getColor() }
+        love.graphics.setColor (colorTable[1], colorTable[2], colorTable[3], colorTable[4])
+        love.graphics.circle("fill", joystick.paddle.position.x, joystick.paddle.position.y, joystick.paddle.radius)
+    end
+    
+    -- scrollArea
+    joystick.scrollArea = {}
+    joystick.scrollArea.radius = 100
+    joystick.scrollArea.position = {}
+    joystick.scrollArea.position.x = 125
+    joystick.scrollArea.position.y = love.graphics.getHeight() - 125  
+    function joystick.scrollArea.draw()
+        local colorTable = { love.graphics.getColor() }
+        love.graphics.setColor(colorTable[1], colorTable[2], colorTable[3], colorTable[4]/2)
+        love.graphics.circle("fill", joystick.scrollArea.position.x, joystick.scrollArea.position.y, joystick.scrollArea.radius)
+        love.graphics.setColor(colorTable[1], colorTable[2], colorTable[3], colorTable[4])
+        love.graphics.circle("line", joystick.scrollArea.position.x, joystick.scrollArea.position.y, joystick.scrollArea.radius)
+    end
+    
+    -- sensing
+    joystick.sensing = {}
+    joystick.sensing.motion = {}
+    function joystick.sensing.motion.x()
+        return ( ( joystick.scrollArea.position.x - joystick.paddle.position.x ) * -1 )
+    end
+    function joystick.sensing.motion.y()
+        return ( ( joystick.scrollArea.position.y - joystick.paddle.position.y ) * -1 )
+    end
+end
+
+function love.update()
+    -- touch sensing code set
+    local touch_table = love.touch.getTouches()
+    local touch_x, touch_y = 125, love.graphics.getHeight()-125
+    local touch_pressure = 0
+    for _, id in ipairs(touch_table) do
+        touch_x, touch_y = love.touch.getPosition(id)
+    end
+    if love.mouse.isDown(1) then
+        touch_x, touch_y = love.mouse.getPosition()
+    end
+
+    -- joystick update code set
+    if math.sqrt((math.pow(touch_x-125, 2)+math.pow(touch_y-love.graphics.getHeight ()+125, 2 ))) <= 100 then
+        joystick.paddle.position.x, joystick.paddle.position.y = touch_x, touch_y
+    end
+end
+   
+function love.draw()
+    -- joystick display code set
+    joystick.scrollArea.draw()
+    joystick.paddle.draw()
+end
